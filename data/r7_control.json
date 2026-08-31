@@ -1,0 +1,99 @@
+{
+ "a1": {
+  "real": {
+   "n_replicates": 200,
+   "pooled_reject_rate": 1.0,
+   "cond_reject_rate": 1.0,
+   "pooled_or_median": 2.0131354326230353,
+   "cond_or_median": 2.0204039775126015,
+   "pooled_chi_median": 138.21681953151216,
+   "cond_chi_median": 114.98904035721993
+  },
+  "spurious": {
+   "n_replicates": 200,
+   "pooled_reject_rate": 1.0,
+   "cond_reject_rate": 0.045,
+   "pooled_or_median": 1.5303630038826728,
+   "cond_or_median": 1.0111337454912217,
+   "pooled_chi_median": 49.08733913953611,
+   "cond_chi_median": 0.4220663495387494
+  },
+  "config": {
+   "or_true": 2.0,
+   "base_prevalence": 0.4,
+   "alpha": 0.05,
+   "n_runs": 5004,
+   "n_strata": 348
+  }
+ },
+ "b_power": {
+  "by_model": [
+   {
+    "or_planted": 1.5,
+    "n_runs": 143,
+    "n_strata": 3,
+    "reject_rate": 0.155,
+    "or_median": 1.5590394181509573,
+    "chi_median": 1.175448542943787
+   },
+   {
+    "or_planted": 2.0,
+    "n_runs": 143,
+    "n_strata": 3,
+    "reject_rate": 0.38,
+    "or_median": 2.0622210260829634,
+    "chi_median": 2.8891519177590856
+   },
+   {
+    "or_planted": 3.0,
+    "n_runs": 143,
+    "n_strata": 3,
+    "reject_rate": 0.765,
+    "or_median": 3.066730503958466,
+    "chi_median": 6.613246844181173
+   },
+   {
+    "or_planted": 5.0,
+    "n_runs": 143,
+    "n_strata": 3,
+    "reject_rate": 0.96,
+    "or_median": 5.052906081554423,
+    "chi_median": 12.724303132574914
+   }
+  ],
+  "by_task": [
+   {
+    "or_planted": 1.5,
+    "n_runs": 143,
+    "n_strata": 63,
+    "reject_rate": 0.235,
+    "or_median": 1.437460913070669,
+    "chi_median": 1.1096025932474534
+   },
+   {
+    "or_planted": 2.0,
+    "n_runs": 143,
+    "n_strata": 63,
+    "reject_rate": 0.47,
+    "or_median": 1.986111111111111,
+    "chi_median": 3.5867977167189755
+   },
+   {
+    "or_planted": 3.0,
+    "n_runs": 143,
+    "n_strata": 63,
+    "reject_rate": 0.89,
+    "or_median": 3.0402576489533013,
+    "chi_median": 9.03836450630709
+   },
+   {
+    "or_planted": 5.0,
+    "n_runs": 143,
+    "n_strata": 63,
+    "reject_rate": 1.0,
+    "or_median": 4.947368421052632,
+    "chi_median": 17.12377411575563
+   }
+  ]
+ }
+}

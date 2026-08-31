@@ -1,0 +1,100 @@
+{
+ "note": "Under the pre-fix labelling the final action's missing observation was called `noop`. Every run therefore ended in a fictitious no-op. `EDIT:noop` was the strongest negative survivor in the L3 scan and was entirely this artefact.",
+ "A1": {
+  "n_runs": 5004,
+  "runs_whose_last_token_is_terminal": 5004,
+  "frac_runs_terminal": 1.0,
+  "genuine_mid_run_noop_tokens": 6016,
+  "terminal_tokens": 5004,
+  "frac_of_all_noop_that_was_terminal": 0.4540834845735027,
+  "terminal_action_class": {
+   "SUBMIT": 3399,
+   "EDIT": 894,
+   "VIEW": 366,
+   "EXEC": 230,
+   "SEARCH": 88,
+   "LIST": 14,
+   "CREATE": 9,
+   "FS": 4
+  },
+  "edit_terminal_runs": 894,
+  "edit_terminal_exit_status": {
+   "submitted (exit_context)": 770,
+   "early_exit": 69,
+   "exit_context": 55
+  },
+  "edit_terminal_context_exhausted": 825,
+  "edit_terminal_frac_context_exhausted": 0.9228187919463087,
+  "runs_with_a_mid_run_edit_noop": 0,
+  "edit_terminal_resolved": 125
+ },
+ "prefix_artefact_effect": {
+  "motif": "EDIT:noop (pre-fix) == terminal EDIT",
+  "or_cond": 0.1905068673388923,
+  "chi_cond": 255.8688809327396,
+  "or_pooled": 0.24264080945345376,
+  "n_present": 894
+ },
+ "A0": {
+  "n_runs": 80035,
+  "runs_whose_last_token_is_terminal": 80035,
+  "frac_runs_terminal": 1.0,
+  "genuine_mid_run_noop_tokens": 107695,
+  "terminal_tokens": 80035,
+  "frac_of_all_noop_that_was_terminal": 0.4263303680818196,
+  "terminal_action_class": {
+   "SUBMIT": 52165,
+   "EDIT": 14107,
+   "VIEW": 6783,
+   "EXEC": 4254,
+   "SEARCH": 2102,
+   "LIST": 306,
+   "CREATE": 159,
+   "FS": 112,
+   "OTHER": 47
+  },
+  "edit_terminal_runs": 14107,
+  "edit_terminal_exit_status": {
+   "submitted (exit_context)": 10218,
+   "early_exit": 2343,
+   "exit_context": 1507,
+   "submitted (exit_format)": 27,
+   "exit_format": 9,
+   "submitted (exit_cost)": 3
+  },
+  "edit_terminal_context_exhausted": 11725,
+  "edit_terminal_frac_context_exhausted": 0.8311476571914652,
+  "runs_with_a_mid_run_edit_noop": 1,
+  "edit_terminal_resolved": 337
+ },
+ "runs_per_task": {
+  "A": {
+   "median": 16,
+   "q1": 11,
+   "q3": 35,
+   "n_tasks": 3591,
+   "frac_single_run": 0.00278473962684489
+  },
+  "Aone": {
+   "median": 14,
+   "q1": 12,
+   "q3": 18,
+   "n_tasks": 348,
+   "frac_single_run": 0.0
+  },
+  "B": {
+   "median": 2,
+   "q1": 1,
+   "q3": 2,
+   "n_tasks": 390,
+   "frac_single_run": 0.4948717948717949
+  },
+  "C": {
+   "median": 3,
+   "q1": 2,
+   "q3": 4,
+   "n_tasks": 6015,
+   "frac_single_run": 0.15311720698254364
+  }
+ }
+}
