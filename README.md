@@ -38,6 +38,9 @@ analysis/
   r9_entailment.py      outcome entailment
   r10_heterogeneity.py  heterogeneity of the common odds ratio across tasks
   r11_a1_sensitivity.py sensitivity of the within-task contrast to how corpus A1 is built
+  r12_het_control.py    planted controls for the homogeneity test of r10: a motif whose odds ratio
+                        is identical in every task (the false positive rate) and one split between
+                        a value and its reciprocal (the power)
   make_figures.py       the paper's figures
   mknumbers.py          result files -> numbers.tex and survivors.tex
   verify.py             independent re-derivation of 23 headline quantities from the raw streams
@@ -50,7 +53,7 @@ data/
   tokens_frontier.jsonl      B, one run per (task, model): 629 runs
   tokens_openhands.jsonl.gz  C, a different scaffold, model and benchmark
   tokens_sample.jsonl        a prefix of A0, used by verify.py for its faster pass
-  r1..r11_*.json             the result files each stage writes
+  r1..r12_*.json             the result files each stage writes
 llab/
   __init__.py, ingest.py, ingest_openhands.py, ingest_traj.py, schema.py, actions.py
                         trajectory ingest, vendored so this tree runs standalone. Only the
@@ -77,7 +80,7 @@ Every stage reads only files in `data/` and writes its own result file there. Ru
 python r1_replicate.py   python r2_variance.py    python r3_association.py
 python r4_frontier.py    python r5_openhands.py   python r6_robust.py
 python r7_control.py     python r8_terminal.py    python r9_entailment.py
-python r10_heterogeneity.py                       python r11_a1_sensitivity.py
+python r10_heterogeneity.py   python r11_a1_sensitivity.py   python r12_het_control.py
 ```
 
 Runtimes range from seconds to several minutes. `r2_variance.py` is the longest, about seven
@@ -86,8 +89,9 @@ hung. `r3_association.py` and `r5_openhands.py` are next, because each runs 200 
 permutations.
 
 Every stage is seeded and deterministic: re-running one overwrites its result file with the same
-bytes. `r10_heterogeneity.py` reads an optional `R10_PERM` environment variable to run a faster
-smoke test; the paper uses its default of 200.
+bytes. `r10_heterogeneity.py` reads an optional `R10_PERM` environment variable, and
+`r12_het_control.py` reads `R12_REP` and `R12_NULL`, to run faster smoke tests; the paper uses
+their defaults of 200.
 
 ## Rebuilding the token streams from source (optional)
 

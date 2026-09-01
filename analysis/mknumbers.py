@@ -179,8 +179,14 @@ def main() -> int:
     # deviation is 0.0501, which to nearest is 0.050 and is then exceeded by the thing it bounds.
     import math as _m
     mac("repldevshare", _m.ceil(max(devs) * 1000) / 1000, "{:.3f}")
-    mac("repldevsteps", max(abs(pub["steps"][0] - ours["resolved"]["steps"]),
-                            abs(pub["steps"][1] - ours["failed"]["steps"])), "{:.2f}")
+    # Same discipline as repldevshare directly above, which this line did NOT follow: the prose
+    # says the statistics agree "within" this many steps, and the worst deviation is 0.04438, which
+    # to nearest prints 0.04 and is then exceeded by the thing it bounds. The generator ceiled one
+    # bound in the sentence and rounded the other, so the sentence printed one true inequality and
+    # one false one.
+    mac("repldevsteps", _m.ceil(max(abs(pub["steps"][0] - ours["resolved"]["steps"]),
+                                    abs(pub["steps"][1] - ours["failed"]["steps"])) * 100) / 100,
+        "{:.2f}")
     mac("repldevmaxx", abs(pub["max_x_run"][0] - ours["resolved"]["max_x_run"]), "{:.1f}")
     mac("litVR", lit["resolved"]["v_ratio"], "{:.3f}")
     mac("pubVR", pub["v_ratio"][0], "{:.3f}")
@@ -240,10 +246,21 @@ def main() -> int:
         "{:.2f}")
 
     ns = [r3["nosubmit"][a] for a in ("l1", "l2", "l3")]
-    mac("nullPlo", min(v["lambda_pooled_null_mean"] for v in ns), "{:.2f}")
-    mac("nullPhi", max(v["lambda_pooled_null_mean"] for v in ns), "{:.2f}")
-    mac("nullClo", min(v["lambda_cond_null_mean"] for v in ns), "{:.2f}")
-    mac("nullChi", max(v["lambda_cond_null_mean"] for v in ns), "{:.2f}")
+    # These four print the ENDS OF A RANGE, so they must be rounded toward the claim, not to
+    # nearest: a low end rounded up excludes the value it bounds, and a high end rounded down does
+    # the same. Rounding to nearest printed a pooled null range of 1.63 to 2.11 over true values of
+    # 1.62724 and 2.11196, so both ends were wrong in the direction that flatters the sentence.
+    # Same defect class as \sensXRlo, and the same discipline as \repldevshare above.
+    def floor2(x):
+        return math.floor(x * 100) / 100
+
+    def ceil2(x):
+        return math.ceil(x * 100) / 100
+
+    mac("nullPlo", floor2(min(v["lambda_pooled_null_mean"] for v in ns)), "{:.2f}")
+    mac("nullPhi", ceil2(max(v["lambda_pooled_null_mean"] for v in ns)), "{:.2f}")
+    mac("nullClo", floor2(min(v["lambda_cond_null_mean"] for v in ns)), "{:.2f}")
+    mac("nullChi", ceil2(max(v["lambda_cond_null_mean"] for v in ns)), "{:.2f}")
     xe = [r3["nosubmit"][a] for a in ("xepv", "xepvb")]
     mac("nullCxepvlo", min(v["lambda_cond_null_mean"] for v in xe), "{:.2f}")
     mac("nullCxepvhi", max(v["lambda_cond_null_mean"] for v in xe), "{:.2f}")
@@ -477,6 +494,23 @@ def main() -> int:
     mac("hettopor", top["or_cond"], "{:.2f}")
     pct("hettopsame", top["frac_strata_same_sign"], "{:.0f}")
     mac("hetLTWOn", len(r10["l2"]["survivors"]))
+    # What the CONVENTIONAL reading says. The calibrated test rejects homogeneity for most
+    # survivors; the asymptotic chi-square rejects it for none, and the textbook I^2 is near zero.
+    # Reporting the first without the second lets a reader recompute the standard statistic, get
+    # nothing, and conclude the calibration was picked for its answer.
+    mac("hetasymrejn", sum(1 for r in s10 if r["q_asymptotic_p"] <= 0.05))
+    mac("hetasymrejnLTWO", sum(1 for r in r10["l2"]["survivors"]
+                               if r["q_asymptotic_p"] <= 0.05))
+    mac("hetitwoasymhi", max(max(r["i2"] for r in s10),
+                             max(r["i2"] for r in r10["l2"]["survivors"])), "{:.2f}")
+
+    # ---- the planted homogeneity control (R12) --------------------------------------------
+    r12 = load("r12_het_control.json")
+    mac("hetctlreps", r12["config"]["n_rep"])
+    mac("hetctlor", r12["config"]["or_homogeneous"], "{:.1f}")
+    mac("hetctlhi", r12["config"]["or_heterogeneous_split"][0], "{:.0f}")
+    mac("hetctlhomrejn", r12["homogeneous"]["n_reject"])
+    mac("hetctlhetrejn", r12["heterogeneous"]["n_reject"])
     mac("hetLTWOrejn", sum(1 for r in r10["l2"]["survivors"] if r["q_homog_rejected_bh"]))
 
     # ---- camera-ready additions: how A1 was actually built, and its sensitivity (R11) -----

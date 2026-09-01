@@ -1,0 +1,36 @@
+{
+ "config": {
+  "n_rep": 200,
+  "n_null": 200,
+  "alpha": 0.05,
+  "or_homogeneous": 2.0,
+  "or_heterogeneous_split": [
+   3.0,
+   0.3333333333333333
+  ],
+  "base_prevalence": 0.4,
+  "source": "A1 (tokens_dual.jsonl), real strata at real sizes and rates",
+  "n_runs": 5004,
+  "n_instances": 348
+ },
+ "homogeneous": {
+  "kind": "homogeneous",
+  "n_rep": 200,
+  "alpha": 0.05,
+  "n_reject": 4,
+  "reject_rate": 0.02,
+  "median_p": 0.582089552238806,
+  "median_q_over_df": 0.7168643622950936,
+  "median_or_cmh": 1.985752920368197
+ },
+ "heterogeneous": {
+  "kind": "heterogeneous",
+  "n_rep": 200,
+  "alpha": 0.05,
+  "n_reject": 200,
+  "reject_rate": 1.0,
+  "median_p": 0.004975124378109453,
+  "median_q_over_df": 1.1174530107214964,
+  "median_or_cmh": 1.1098058855523152
+ }
+}

@@ -30,7 +30,7 @@ import os
 import sys
 
 import numpy as np
-from scipy.stats import nchypergeom_fisher
+from scipy.stats import chi2, nchypergeom_fisher
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import llib  # noqa: E402
@@ -192,6 +192,12 @@ def analyse(rows, alpha, n_perm, seed, tag):
                 float(np.quantile(agree_null, .025)), 4),
             "cochran_q": None if not np.isfinite(q) else round(q, 3),
             "q_df": df,
+            # The textbook reading, stored so the manuscript can SAY what it rejects. Against this
+            # reference no survivor rejects at all, and reporting the calibrated result without
+            # that fact would let a reader recompute the conventional statistic, get nothing, and
+            # reasonably conclude the calibration was chosen for its answer.
+            "q_asymptotic_p": None if (not np.isfinite(q) or df < 1) else round(
+                float(chi2.sf(q, df)), 6),
             "i2": None if not np.isfinite(i2) else round(i2, 4),
             "breslow_day": None if not np.isfinite(bd) else round(bd, 3),
             "breslow_day_df": bddf,

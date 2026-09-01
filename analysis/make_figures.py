@@ -98,7 +98,7 @@ def fig_qq(r3, r5, alpha="l2", alpha_c="l3", config="nosubmit"):
     # Height is page budget, not taste: this figure spans both columns, so every 0.1in here frees
     # roughly a line in each. Anything below about 1.3in starts crowding the legends into the
     # points, so check the rendered page after changing it.
-    fig, axes = plt.subplots(1, 4, figsize=(7.0, 1.04), sharey=True)
+    fig, axes = plt.subplots(1, 4, figsize=(7.0, 0.96), sharey=True)
     for ax, (v, name, ko, kn, lk, nk) in zip(axes, panels):
         m = v["n_motifs"]
         exp = -np.log10((np.arange(1, m + 1) - 0.5) / m)
@@ -138,7 +138,12 @@ def fig_forest(r1, r6, alpha="xepvb"):
     # both promised an interval on every level. r6 bootstraps that estimate over tasks, the same
     # resampling unit as the other two rows, so plot it rather than weaken the caption.
     corpus = r6["corpus_contrast"][alpha]
-    fig, axes = plt.subplots(1, len(keys), figsize=(7.0, 1.06))
+    # Do NOT widen wspace to separate the outermost tick labels of adjacent panels. Tried at 0.45:
+    # it does separate them, but it narrows every panel, and the X-share panel carries three ticks
+    # (-0.04, 0.00, 0.04) whose first two then collide INSIDE the panel and render as "-0.040.00".
+    # Trading a near-touch between panels for an overlap within one is a worse figure. The height
+    # here is load-bearing for the page limit; leave the spacing alone.
+    fig, axes = plt.subplots(1, len(keys), figsize=(7.0, 0.98))
     for ax, k in zip(axes, keys):
         rows = [("whole corpus\n(pooled)", corpus[k]["delta"], corpus[k]["lo"],
                  corpus[k]["hi"], GREY),
