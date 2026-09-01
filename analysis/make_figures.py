@@ -29,6 +29,40 @@ plt.rcParams.update({
 })
 GREY, BLUE, RED = "#555555", "#1f5fa8", "#b2182b"
 
+# Declare the size the text should be ON THE PAGE, not in the figure.
+#
+# savefig.bbox="tight" crops each figure to its content, which lands BELOW the width it is
+# then drawn at (\textwidth 506.295pt for the two figure*, \columnwidth 241.15pt for the
+# single-column one), so LaTeX MAGNIFIES every figure, by a different factor each. Font sizes
+# are absolute points inside the figure, so they are magnified too. Measured from the shipped
+# camera-ready with pdfplumber: fig_forest's panel titles rendered at 9.06pt against 8.97pt
+# body text, and the three figures carried three different text sizes (ticks at 7.19, 7.82 and
+# 7.85pt) purely because each got a different upscale. Declaring a size here and assuming it
+# is what prints is how that happened.
+#
+# So divide the target by the measured upscale. Oversized furniture is also what forced the
+# data area to be crushed during the page-limit fight: shrinking it back buys roughly 30% more
+# plotting area at an identical page footprint, which is the whole point of this table.
+#
+# UPSCALE is measured, not guessed. Each figure's rendered width is its /MediaBox width times
+# the factor below, and the factor is read back off the built figure as DRAWN_WIDTH / MediaBox
+# width. It is mildly self-referential, because narrower tick labels make a narrower tight bbox
+# and so a LARGER upscale, so it takes two iterations to settle. Changing a figure's geometry
+# makes this table stale: re-measure rather than assume the declared sizes are what print.
+PAGE_PT = {"title": 7.5, "label": 7.0, "tick": 6.5}   # all below the 8.97pt body text
+UPSCALE = {"fig_qq": 1.2146, "fig_forest": 1.2245, "fig_repeat": 1.0998}
+
+
+def fonts(name):
+    """rcParams that render at PAGE_PT once LaTeX has scaled this figure up."""
+    u = UPSCALE[name]
+    return {"font.size": PAGE_PT["label"] / u,
+            "axes.labelsize": PAGE_PT["label"] / u,
+            "axes.titlesize": PAGE_PT["title"] / u,
+            "xtick.labelsize": PAGE_PT["tick"] / u,
+            "ytick.labelsize": PAGE_PT["tick"] / u,
+            "legend.fontsize": PAGE_PT["tick"] / u}
+
 
 def save(fig, name):
     """PDF for the paper, PNG beside it so the figure can actually be looked at before it ships."""
@@ -97,7 +131,14 @@ def fig_qq(r3, r5, alpha="l2", alpha_c="l3", config="nosubmit"):
     ymax = 20.0
     # Height is page budget, not taste: this figure spans both columns, so every 0.1in here frees
     # roughly a line in each. Anything below about 1.3in starts crowding the legends into the
-    # points, so check the rendered page after changing it.
+    # points, so check the rendered page after changing it. The height stayed at 0.96 through the
+    # font repair; what grew was the share of it the data gets, once the furniture stopped being
+    # magnified to 8.4pt.
+    with plt.rc_context(fonts("fig_qq")):
+        _fig_qq_body(panels, ymax)
+
+
+def _fig_qq_body(panels, ymax):
     fig, axes = plt.subplots(1, 4, figsize=(7.0, 0.96), sharey=True)
     for ax, (v, name, ko, kn, lk, nk) in zip(axes, panels):
         m = v["n_motifs"]
@@ -138,12 +179,25 @@ def fig_forest(r1, r6, alpha="xepvb"):
     # both promised an interval on every level. r6 bootstraps that estimate over tasks, the same
     # resampling unit as the other two rows, so plot it rather than weaken the caption.
     corpus = r6["corpus_contrast"][alpha]
-    # Do NOT widen wspace to separate the outermost tick labels of adjacent panels. Tried at 0.45:
-    # it does separate them, but it narrows every panel, and the X-share panel carries three ticks
+    with plt.rc_context(fonts("fig_forest")):
+        _fig_forest_body(keys, c, corpus)
+
+
+def _fig_forest_body(keys, c, corpus):
+    # wspace: 0.45 was tried once and is KNOWN BAD. It does separate the outermost tick labels of
+    # adjacent panels, but it narrows every panel, and the X-share panel carries three ticks
     # (-0.04, 0.00, 0.04) whose first two then collide INSIDE the panel and render as "-0.040.00".
-    # Trading a near-touch between panels for an overlap within one is a worse figure. The height
-    # here is load-bearing for the page limit; leave the spacing alone.
-    fig, axes = plt.subplots(1, len(keys), figsize=(7.0, 0.98))
+    # Trading a near-touch between panels for an overlap within one is a worse figure.
+    #
+    # The between-panel touch was real, not cosmetic: pdfplumber extracted the mean-max-X-run
+    # panel's "0.0" and the V-share panel's "0.00" from the shipped PDF as the single token
+    # "0.00.00", i.e. a ZERO gap, and it shipped that way in the submitted version too. What makes
+    # a modest value safe now is that the tick labels are no longer magnified to 7.85pt, so they
+    # are about 17% narrower and the X-share panel has interior room it did not have before. Check
+    # BOTH the between-panel gaps and the X-share panel's internal ones after changing this.
+    # The height is load-bearing for the page limit; do not touch it.
+    fig, axes = plt.subplots(1, len(keys), figsize=(7.0, 0.98),
+                             gridspec_kw={"wspace": 0.20})
     for ax, k in zip(axes, keys):
         rows = [("whole corpus\n(pooled)", corpus[k]["delta"], corpus[k]["lo"],
                  corpus[k]["hi"], GREY),
@@ -183,18 +237,36 @@ def fig_repeat(r2, model="swe-agent-llama-70b", min_runs=4):
         cells.setdefault(r["instance_id"], []).append(int(bool(r["resolved"])))
     rates = np.array([np.mean(v) for v in cells.values() if len(v) >= min_runs])
     m = r2["models"][model]
+    with plt.rc_context(fonts("fig_repeat")):
+        _fig_repeat_body(rates, m, min_runs)
 
+
+def _fig_repeat_body(rates, m, min_runs):
     fig, ax = plt.subplots(figsize=(3.33, 1.06))
     ax.hist(rates, bins=np.linspace(0, 1, 21), color=BLUE, edgecolor="white", linewidth=0.3)
     # Log scale: the never-solved bar is an order of magnitude taller than everything else, and
     # the shape of the rest is the point of the figure.
     ax.set_yscale("log")
+    # Autoscaling left only two labelled ticks, 10^2 and 10^3, over a range whose bars run from 18
+    # to 2,673, so a reader could not put a number on any of the short bars. Pinning the floor at
+    # 10 gives three labelled decades. The floor is BELOW the smallest bin (18 of 3,387 tasks, in
+    # the 0.55-0.60 bucket) and no bin is empty, so nothing is clipped by it; re-check that if the
+    # binning or the model ever changes.
+    ax.set_ylim(bottom=10)
+    ax.set_yticks([10, 100, 1000])
+    # Plain integers rather than 10^n. A log tick's exponent is mathtext at ~0.68 of the tick size,
+    # which at this scale renders about 4.5pt on the page, the smallest thing in any figure here.
+    # "10 / 100 / 1000" says the same thing with no glyph below the tick size, and three decades
+    # is short enough that the powers of ten buy nothing.
+    ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{int(v)}"))
+    ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
     ax.set_xlabel(f"per-task resolve rate ({m['k_tasks']} tasks with $\\geq${min_runs} runs)")
     ax.set_ylabel("tasks")
     ax.text(0.5, 0.95,
             f"ICC $=$ {m['icc']:.2f}\n{100 * m['discordance']['frac_tasks_discordant']:.0f}% of tasks"
             f" give both outcomes",
-            transform=ax.transAxes, ha="center", va="top", fontsize=6.5)
+            transform=ax.transAxes, ha="center", va="top",
+            fontsize=PAGE_PT["tick"] / UPSCALE["fig_repeat"])
     save(fig, "fig_repeat")
     plt.close(fig)
 
